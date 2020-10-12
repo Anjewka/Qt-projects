@@ -4,7 +4,6 @@
 #include <QTime>
 #include <QMessageBox>
 #include <QPushButton>
-#include <button.h>
 
 game::game()
 {
