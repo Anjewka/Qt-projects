@@ -14,10 +14,6 @@ game::game()
     this->setMinimumSize(400, 1000);
     this->setMaximumSize(400, 1000);
 
-    btnPause = new QPushButton(this);
-    btnPause->setGeometry(360, 0, 40, 40);
-    connect(btnPause, &QPushButton::clicked, this, &game::Pause);
-
     initGame();
 }
 
@@ -234,13 +230,6 @@ void game::pushDown(int row)
     }
 }
 
-void game::DrawLine()
-{
-    QPainter p(this);
-    p.setBrush(Qt::white);
-    p.drawRect(0, 0, 400, 1000);
-}
-
 void game::Pause()
 {
     play = false;
@@ -325,7 +314,6 @@ void game::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     if(play) {Draw();}
-    else {DrawLine();}
 }
 
 void game::keyPressEvent(QKeyEvent *event)
