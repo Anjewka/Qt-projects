@@ -274,7 +274,7 @@ void model::checkPoints(int i)
         {
             if(q[i]->getSign() != q[j]->getSign() && (Fq(q[i], q[j]) > q[i]->getM() * 0.1 || Fq(q[i], q[j]) > q[j]->getM() * 0.1))
             {
-                mergeCharges(q[i], q[j]);
+                q[i] = mergeCharges(q[i], q[j]);
                 q.erase(q.begin() + j);
             }
             else {Puls(q[i], q[j]);}
@@ -282,7 +282,7 @@ void model::checkPoints(int i)
     }
 }
 
-void model::mergeCharges(Charge *q1, Charge *q2)
+Charge* model::mergeCharges(Charge *q1, Charge *q2)
 {
     Charge *new_q = q1;
     new_q->setColor(QColor(q1->getColor().red() + q2->getColor().red(), q1->getColor().green() + q2->getColor().green(), q1->getColor().blue() + q2->getColor().blue()));
@@ -294,7 +294,6 @@ void model::mergeCharges(Charge *q1, Charge *q2)
         new_q->setY(q1->getY());
         new_q->getV()->setX(q1->getV()->getX());
         new_q->setSign(q1->getSign());
-        q1 = new_q;
     }
     else
     {
@@ -302,8 +301,8 @@ void model::mergeCharges(Charge *q1, Charge *q2)
         new_q->setY(q2->getY());
         new_q->setSpeed(q2->getV());
         new_q->setSign(q2->getSign());
-        q1 = new_q;
     }
+    return new_q;
 }
 
 void model::AddNewQ()
@@ -328,21 +327,33 @@ void model::Puls(Charge *q1, Charge *q2)
 {
     double r = getDist(q1, q2);
 
-    double ax = (q2->getX() - q1->getX())/r;
-    double ay = (q2->getY() - q1->getY())/r;
+    double cosx = (q2->getX() - q1->getX()) / r;
+    double siny = (q2->getY() - q1->getY()) / r;
 
-    double vn1 = q1->getVx() * ax + q1->getVy() * ay;
-    double vt1 = -q1->getVx() * ay + q1->getVy() * ax;
+    double vn1 = q1->getVx() * cosx + q1->getVy() * siny;
+    double vt1 = -q1->getVx() * siny + q1->getVy() * cosx;
 
-    double vn2 = q2->getVx() * ax + q2->getVy() * ay;
-    double vt2 = -q2->getVx() * ay + q2->getVy() * ax;
+    double vn2 = q2->getVx() * cosx + q2->getVy() * siny;
+    double vt2 = -q2->getVx() * siny + q2->getVy() * cosx;
+
+    double dt = (1 - r) / (vn1 - vn2);
+
+    q1->setX(q1->getX() - q1->getVx() * dt);
+    q1->setY(q1->getY() - q1->getVy() * dt);
+    q2->setX(q2->getX() - q2->getVx() * dt);
+    q2->setY(q2->getY() - q2->getVy() * dt);
 
     double tmp = vn1;
     vn1 = ((q1->getM() - q2->getM()) * vn1 + 2 * q2->getM() * vn2) / (q1->getM() + q2->getM());
     vn2 = (2 * q1->getM() * tmp + (q2->getM() - q1->getM()) * vn2) / (q1->getM() + q2->getM());
 
-    q1->setSpeed(new Speed(vn1 * ax - vt1 * ay, vn1 * ay + vt1 * ax));
-    q2->setSpeed(new Speed(vn2 * ax - vt2 * ay, vn2 * ay + vt2 * ax));
+    q1->setSpeed(new Speed(vn1 * cosx - vt1 * siny, vn1 * siny + vt1 * cosx));
+    q2->setSpeed(new Speed(vn2 * cosx - vt2 * siny, vn2 * siny + vt2 * cosx));
+
+    q1->setX(q1->getX() + q1->getVx() * dt);
+    q1->setY(q1->getY() + q1->getVy() * dt);
+    q2->setX(q2->getX() + q2->getVx() * dt);
+    q2->setY(q2->getY() + q2->getVy() * dt);
 }
 
 void model::getNum()
