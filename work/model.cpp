@@ -58,6 +58,7 @@ void model::setSettings()
 void model::DrawScene()
 {
     QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
 
     for(int i = 0; i < q.size() ; ++i)
     {
