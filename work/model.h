@@ -61,7 +61,7 @@ public:
     void checkBorder(Charge *q, bool &check1, bool& check2);
     void hideMenu();
     void checkPoints(int i);
-    void mergeCharges(Charge *q1, Charge *q2);
+    Charge* mergeCharges(Charge *q1, Charge *q2);
     void speedRotate(Charge *q, bool c1, bool c2, double s1, double s2);
     void AddNewQ();
     void Puls(Charge *q1, Charge *q2);
