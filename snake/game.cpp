@@ -42,7 +42,7 @@ Game::Game()
     connect(t2, &QTimer::timeout, this, &Game::timeEvent);
 
     t1->start(0);
-    t2->start(150);
+    t2->start(100);
 
     initGame();
 }
@@ -55,16 +55,14 @@ void Game::initGame()
     direction = 0;
     snake.resize(3);
 
+    snake_sprite.load("sprites/snake.png");
+
     for(int i = 0; i<snake.size() ; ++i)
     {
         snake[i] = new Block();
         snake[i]->setX(field_Width / 2 - i);
         snake[i]->setY(field_Height / 2);
-        snake[i]->setColor(QColor(rand() % 255, rand() % 255, rand() % 255));
-        while(snake[i]->getColor() == Qt::white) {snake[i]->setColor(QColor(rand() % 255, rand() % 255, rand() % 255));}
     }
-
-    snake[0]->setColor(Qt::green);
 
     fruit = new Food(field_Width, field_Height);
     score = 0;
@@ -73,19 +71,39 @@ void Game::initGame()
 void Game::Draw()
 {
     QPainter p(this);
-
+    p.setBrush(QColor(226, 233, 127));
+    p.drawRect(0, 0, this->width(), this->height());
     p.setRenderHint(QPainter::Antialiasing);
-
     if(play)
     {
-        p.setBrush(fruit->getColor());
-        p.drawEllipse(fruit->getX() * field_Width, fruit->getY() * field_Height, Width, Height);
-
-        for(int i = 0; i<snake.size() ; ++i)
+        int posx = 120; int posy = 0;
+        snake_sprite = snake_sprite.scaled(5 * Width, 4 * Height);
+        if(snake[0]->getX() == snake[1]->getX()) {if(snake[0]->getY() < snake[1]->getY()) {posx = 90; posy = 0;}}
+        if(snake[0]->getX() < snake[1]->getX()) {if(snake[0]->getY() == snake[1]->getY()) {posx = 90; posy = 30;}}
+        if(snake[0]->getX() == snake[1]->getX()) {if(snake[0]->getY() > snake[1]->getY()) {posx = 120; posy = 30;}}
+        p.drawPixmap(snake[0]->getX() * field_Width, snake[0]->getY() * field_Height, Width, Height, snake_sprite, posx, posy, Width, Height);
+        for(int i = 1; i<snake.size() - 1 ; ++i)
         {
-            p.setBrush(snake[i]->getColor());
-            p.drawEllipse(snake[i]->getX() * field_Width, snake[i]->getY() * field_Height, Width, Height);
+            posx = 30; posy = 0;
+            if(snake[i]->getY() != snake[i - 1]->getY()) {posx = 60; posy = 30;}
+            if(snake[i]->getX() < snake[i - 1]->getX() && snake[i]->getY() == snake[i - 1]->getY()) {if(snake[i]->getX() == snake[i + 1]->getX() && snake[i]->getY() < snake[i + 1]->getY()) {posx = 0; posy = 0;}}
+            if(snake[i]->getX() < snake[i + 1]->getX() && snake[i]->getY() == snake[i + 1]->getY()) {if(snake[i]->getX() == snake[i - 1]->getX() && snake[i]->getY() < snake[i - 1]->getY()) {posx = 0; posy = 0;}}
+            if(snake[i]->getX() < snake[i - 1]->getX() && snake[i]->getY() == snake[i - 1]->getY()) {if(snake[i]->getX() == snake[i + 1]->getX() && snake[i]->getY() > snake[i + 1]->getY()) {posx = 0; posy = 30;}}
+            if(snake[i]->getX() < snake[i + 1]->getX() && snake[i]->getY() == snake[i + 1]->getY()) {if(snake[i]->getX() == snake[i - 1]->getX() && snake[i]->getY() > snake[i - 1]->getY()) {posx = 0; posy = 30;}}
+            if(snake[i]->getX() == snake[i - 1]->getX() && snake[i]->getY() < snake[i - 1]->getY()) {if(snake[i]->getX() > snake[i + 1]->getX() && snake[i]->getY() == snake[i + 1]->getY()) {posx = 60; posy = 0;}}
+            if(snake[i]->getX() == snake[i + 1]->getX() && snake[i]->getY() < snake[i + 1]->getY()) {if(snake[i]->getX() > snake[i - 1]->getX() && snake[i]->getY() == snake[i - 1]->getY()) {posx = 60; posy = 0;}}
+            if(snake[i]->getX() > snake[i - 1]->getX() && snake[i]->getY() == snake[i - 1]->getY()) {if(snake[i]->getX() == snake[i + 1]->getX() && snake[i]->getY() > snake[i + 1]->getY()) {posx = 60; posy = 60;}}
+            if(snake[i]->getX() > snake[i + 1]->getX() && snake[i]->getY() == snake[i + 1]->getY()) {if(snake[i]->getX() == snake[i - 1]->getX() && snake[i]->getY() > snake[i - 1]->getY()) {posx = 60; posy = 60;}}
+            p.drawPixmap(snake[i]->getX() * field_Width, snake[i]->getY() * field_Height, Width, Height, snake_sprite, posx, posy, Width, Height);
         }
+        posx = 90; posy = 90; int end = snake.size() - 1;
+        if(snake[end]->getX() == snake[end - 1]->getX()) {if(snake[end]->getY() < snake[end - 1]->getY()) {posx = 120; posy = 90;}}
+        if(snake[end]->getX() < snake[end - 1]->getX()) {if(snake[end]->getY() == snake[end - 1]->getY()) {posx = 120; posy = 60;}}
+        if(snake[end]->getX() == snake[end - 1]->getX()) {if(snake[end]->getY() > snake[end - 1]->getY()) {posx = 90; posy = 60;}}
+        p.drawPixmap(snake[end]->getX() * field_Width, snake[end]->getY() * field_Height, Width, Height, snake_sprite, posx, posy, Width, Height);
+
+        fruit->sprite = fruit->sprite.scaled(5 * Width, 4 * Height);
+        p.drawPixmap(fruit->getX() * field_Width, fruit->getY() * field_Height, Width, Height, fruit->sprite, 0, 90, Width, Height);
     }
     else
     {
@@ -177,7 +195,7 @@ void Game::eat()
 {
     if(snake[0]->getX() == fruit->getX() && snake[0]->getY() == fruit->getY())
     {
-        snake.push_back(new Block(-1, -1, fruit->getColor()));
+        snake.push_back(new Block(-1, -1));
         score++;
 
         fruit = new Food(field_Width, field_Height);
