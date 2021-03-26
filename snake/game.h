@@ -11,6 +11,7 @@
 #include <block.h>
 #include <food.h>
 #include <QGridLayout>
+#include <QPixmap>
 
 class Game : public QWidget
 {
@@ -33,6 +34,8 @@ private:
 
     QTimer* t1;
     QTimer* t2;
+
+    QPixmap snake_sprite;
 
 public:
     Game();
