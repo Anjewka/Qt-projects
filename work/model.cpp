@@ -1,4 +1,4 @@
-#include "model.h"
+#include <model.h>
 #include <QPalette>
 #include <QTime>
 #include <QPainter>
@@ -20,8 +20,8 @@ model::model()
 
     this->setWindowTitle("Model");
 
-    setRightPart();
     setMenu();
+    setEscapeMenu();
 
     QPalette pal;
     pal.setColor(QPalette::Background, Qt::white);
@@ -32,8 +32,7 @@ model::model()
 
 void model::setSettings()
 {
-
-    timerId = startTimer(0);
+    timerId = startTimer(1);
     con = true;
     menu = false;
 
@@ -45,86 +44,90 @@ void model::setSettings()
     {
         q[i] = new Charge();
 
-        q[i]->getV()->setX(double(rand() % 26) * 0.1);
-        q[i]->getV()->setY(double(rand() % 26) * 0.1);
-        q[i]->setX(double(rand() % int(field_Width)));
-        q[i]->setY(double(rand() % int(field_Height)));
-        q[i]->setM((rand() % 20 + 1) / pow(10, 18));
-        q[i]->setQ((rand() % 5) / pow(10, 15));
+        q[i]->getV()->setX(double(rand() % 26) / 20);
+        q[i]->getV()->setY(double(rand() % 26) / 20);
+        q[i]->setX((rand() % (this->width() - 15)) + 15);
+        q[i]->setY((rand() % (this->height() - 15)) + 15);
+        q[i]->setM((rand() % 20 + 1) / pow(10, 17));
+        q[i]->setQ((rand() % 5) / pow(10, 12));
         if(rand() % 2 == 0) {q[i]->setSign("+");}
         else {q[i]->setSign("-");}
         q[i]->setColor(rand() % 256, rand() % 256, rand() % 256);
     }
 }
 
-void model::DrawScene()
+void model::setMenu()
 {
-    QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
+    menu = true;
+    apply = new QPushButton(this);
+    number = new QLineEdit(this);
+    connect(apply, &QPushButton::clicked, this, &model::Start);
+}
 
-    for(int i = 0; i < q.size() ; ++i)
+void model::setEscapeMenu()
+{
+    btnPause = new QPushButton(this);
+    connect(btnPause, &QPushButton::clicked, this, &model::Pause);
+    setVisibleEnabled(false, btnPause);
+
+    btnContinue = new QPushButton(this);
+    connect(btnContinue, &QPushButton::clicked, this, &model::Continue);
+    setVisibleEnabled(false, btnContinue);
+
+    btnAddnew = new QPushButton(this);
+    connect(btnAddnew, &QPushButton::clicked, this, &model::AddNewQ);
+    setVisibleEnabled(false, btnAddnew);
+
+    btnDelete = new QPushButton(this);
+    connect(btnDelete, &QPushButton::clicked, this, &model::DeleteCharge);
+    setVisibleEnabled(false, btnDelete);
+
+    btnQuit = new QPushButton(this);
+    connect(btnQuit, &QPushButton::clicked, qApp, &QApplication::quit);
+    setVisibleEnabled(false, btnQuit);
+
+    btnSwap = new QPushButton(this);
+    connect(btnSwap, &QPushButton::clicked, this, &model::swapF);
+    setVisibleEnabled(false, btnSwap);
+
+    lbl = new QLabel(this);
+    lbl->setVisible(false);
+    lbl->setEnabled(false);
+}
+
+void model::AddNewQ()
+{
+    if(q.size() < 11)
     {
-        p.setBrush(q[i]->getColor());
-        p.drawEllipse(q[i]->getX() * Width, q[i]->getY() * Height, Width, Height);
+        Charge *newq = new Charge();
+        newq->setSpeed((rand() % 20) * 0.01, (rand() % 20) * 0.01);
+        newq->setX((rand() % (this->width() - 15)) + 15); newq->setY((rand() % (this->height() - 15)) + 15);
+        newq->setM((rand() % 20 + 1) / pow(10, 5));
+        newq->setSign("-");
+        newq->setQ((rand() % 10) / pow(10, 18));
+
+        newq->setColor(rand() % 255, rand() % 255, rand() % 255);
+        q.push_back(newq);
     }
 }
 
-void model::DrawLines()
+void model::DeleteCharge()
 {
-    QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    QPen pen(Qt::black, 2, Qt::SolidLine);
-    p.setPen(pen);
-    p.drawLine(W + 1, 0, W + 1, H);
-
-    p.drawLine(0, 0, this->width(), 0);
+    if(q.size()) {q.pop_back();}
 }
 
-void model::DrawRightPart()
+void model::Continue()
 {
-    QFont font = btnPause->font();
-    font.setPointSize(15);
+    con = true;
+    setVisibleEnabled(false, btnPause);
+    setVisibleEnabled(false, btnContinue);
+    setVisibleEnabled(false, btnAddnew);
+    setVisibleEnabled(false, btnDelete);
+    setVisibleEnabled(false, btnQuit);
+    setVisibleEnabled(false, btnSwap);
 
-    btnPause->setFont(font);
-    btnPause->setGeometry(0.8*this->width() + 2, 0.15*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    btnPause->setText("Pause");
-    setVisibleEnabled(true, btnPause);
-
-    btnContinue->setFont(font);
-    btnContinue->setGeometry(0.8*this->width() + 2, 0.2*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    btnContinue->setText("Continue");
-    setVisibleEnabled(true, btnContinue);
-
-    btnAddnew->setFont(font);
-    btnAddnew->setGeometry(0.8*this->width() + 2, 0.25*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    btnAddnew->setText("Add new Charge");
-    setVisibleEnabled(true, btnAddnew);
-
-    btnQuit->setFont(font);
-    btnQuit->setGeometry(0.8*this->width() + 2, 0.3*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    btnQuit->setText("Quit");
-    setVisibleEnabled(true, btnQuit);
-
-    btnSwap->setFont(font);
-    btnSwap->setGeometry(0.8*this->width() + 2, 0.35*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    btnSwap->setText("Change F");
-    setVisibleEnabled(true, btnSwap);
-
-    lbl->setText("Menu");
-    lbl->setVisible(true);
-    lbl->setEnabled(true);
-
-    QPalette pal;
-    pal.setColor(QPalette::Text, Qt::black);
-    lbl->setPalette(pal);
-
-    lbl->setGeometry(0.85*this->width() + 2, 0.1*this->height(), 0.2*this->width() - 2, 0.05*this->height());
-    lbl->setStyleSheet("color: rgb(0, 0, 0)");
-
-    QFont f = lbl->font();
-    f.setPointSize(20);
-    lbl->setFont(f);
+    lbl->setVisible(false);
+    lbl->setEnabled(false);
 }
 
 void model::DrawMenu()
@@ -136,7 +139,6 @@ void model::DrawMenu()
     QPalette p;
     p.setColor(QPalette::Background, Qt::white);
     number->setPalette(p);
-
 }
 
 void model::Start()
@@ -162,45 +164,14 @@ void model::Pause()
     con = false;
 }
 
-void model::Continue()
-{
-    con = true;
-}
-
-void model::setRightPart()
-{
-    btnPause = new QPushButton(this);
-    connect(btnPause, &QPushButton::clicked, this, &model::Pause);
-    setVisibleEnabled(false, btnPause);
-
-    btnContinue = new QPushButton(this);
-    connect(btnContinue, &QPushButton::clicked, this, &model::Continue);
-    setVisibleEnabled(false, btnContinue);
-
-    btnAddnew = new QPushButton(this);
-    connect(btnAddnew, &QPushButton::clicked, this, &model::AddNewQ);
-    setVisibleEnabled(false, btnAddnew);
-
-    btnQuit = new QPushButton(this);
-    connect(btnQuit, &QPushButton::clicked, qApp, &QApplication::quit);
-    setVisibleEnabled(false, btnQuit);
-
-    btnSwap = new QPushButton(this);
-    connect(btnSwap, &QPushButton::clicked, this, &model::swapF);
-    setVisibleEnabled(false, btnSwap);
-
-    lbl = new QLabel(this);
-    lbl->setVisible(false);
-    lbl->setEnabled(false);
-}
-
 void model::Move()
 {
     updateSpeed();
     for(int i = 0; i<q.size() ; ++i)
     {
-        if(q[i]->getVx() - 0.05 >= 0) {q[i]->setSpeed(0.01, q[i]->getVy());}
-        if(q[i]->getVy() - 0.05 >= 0) {q[i]->setSpeed(q[i]->getVx(), 0.01);}
+        if(q[i]->getVx() > 1) {q[i]->getV()->setX(q[i]->getVx() / 10);}
+        if(q[i]->getVy() > 1) {q[i]->getV()->setY(q[i]->getVy() / 10);}
+
         bool check1 = false; bool check2 = false;
         double s1 = q[i]->getV()->getX(); double s2 = q[i]->getV()->getY();
 
@@ -216,8 +187,8 @@ void model::Move()
 
 void model::speedRotate(Charge *q, bool check1, bool check2, double s1, double s2)
 {
-    if(check1) {q->setSpeed(s1, -1*s2);}
-    else if(check2) {q->setSpeed(-1*s1, s2);}
+    if(check1) {q->setSpeed(s1, -1 * s2);}
+    else if(check2) {q->setSpeed(-1 * s1, s2);}
 }
 
 void model::Annigilation(Charge *q1, Charge *q2)
@@ -281,20 +252,20 @@ double model::getDist(Charge *q1, Charge *q2)
 void model::checkBorder(Charge *q, bool& check1, bool& check2)
 {
     double x0 = q->getX(), y0 = q->getY(), x1 = q->getV()->getX() + x0, y1 = q->getV()->getY() + y0;
-    if(field_Width - x1 - 1 < 0 || x1 < 0 || field_Height - y1 - 1 < 0 || y1 < 0)
+    if(this->width() < x1 + 15 || x1 < 15 || this->height() < y1 + 15 || y1 < 15)
     {
         double x, y;
-        if(field_Width - x1 - 1 < 0 || x1 < 0)
+        if(this->width() < x1 + 15 || x1 < 15)
         {
-            x = x1 < 0 ? 0 : field_Width - 1;
+            x = x1 < 15 ? 15 : this->width() - 15;
             y = (x - x0) / (x1 - x0) * (y1 - y0);
         }
         else
         {
-            y = y1 < 0 ? 0 : field_Height - 1;
+            y = y1 < 15 ? 15 : this->height() - 15;
             x = (y - y0) / (y1 - y0) * (x1 - x0);
         }
-        if(field_Width - x1 - 1 < 0 || x1 < 0) {q->setSpeed(x - x0, y); check2 = true;}
+        if(this->width() < x1 + 15 || x1 < 15) {q->setSpeed(x - x0, y); check2 = true;}
         else {q->setSpeed(x, y - y0); check1 = true;}
     }
 }
@@ -303,7 +274,7 @@ void model::checkPoints(int i)
 {
     for(int j = i + 1; j<q.size() ; ++j)
     {
-        if(getDist(q[i], q[j]) <= 1)
+        if(getDist(q[i], q[j]) < 30)
         {
             if(q[i]->getSign() != q[j]->getSign() && (q[i]->getM() / q[j]->getM() > 4 || q[j]->getM() / q[i]->getM() > 4))
             {
@@ -335,24 +306,6 @@ Charge* model::mergeCharges(Charge *q1, Charge *q2)
     return q;
 }
 
-void model::AddNewQ()
-{
-    con = false;
-    if(q.size() < 11)
-    {
-        Charge *newq = new Charge();
-        newq->setSpeed((rand() % 20) * 0.01, (rand() % 20) * 0.01);
-        newq->setX(rand() % int(field_Width)); newq->setY(rand() % int(field_Height));
-        newq->setM((rand() % 20 + 1) / pow(10, 5));
-        newq->setSign("-");
-        newq->setQ((rand() % 10) / pow(10, 18));
-
-        newq->setColor(rand() % 255, rand() % 255, rand() % 255);
-        q.push_back(newq);
-    }
-    con = true;
-}
-
 void model::Puls(Charge *q1, Charge *q2)
 {
     double r = getDist(q1, q2);
@@ -366,7 +319,7 @@ void model::Puls(Charge *q1, Charge *q2)
     double vn2 = q2->getVx() * cosx + q2->getVy() * siny;
     double vt2 = -q2->getVx() * siny + q2->getVy() * cosx;
 
-    double dt = (1 - r) / (vn1 - vn2);
+    double dt = (30 - r) / (vn1 - vn2);
 
     q1->setX(q1->getX() - q1->getVx() * dt);
     q1->setY(q1->getY() - q1->getVy() * dt);
@@ -388,6 +341,16 @@ void model::Puls(Charge *q1, Charge *q2)
     Annigilation(q1, q2);
 }
 
+void model::timerEvent(QTimerEvent *)
+{
+    this->repaint();
+
+    if(con)
+    {
+        Move();
+    }
+}
+
 void model::getNum()
 {
     QString s = number->text();
@@ -406,63 +369,82 @@ void model::getNum()
     number->setPalette(p);
 }
 
-void model::setMenu()
-{
-    menu = true;
-    apply = new QPushButton(this);
-    number = new QLineEdit(this);
-    connect(apply, &QPushButton::clicked, this, &model::Start);
-}
-
-void model::setVisibleEnabled(bool c, QPushButton *q)
-{
-    q->setVisible(c);
-    q->setEnabled(c);
-}
-
-void model::updateScene()
-{
-    W = this->width() * 0.8;
-    H = this->height();
-
-    Width = sqrt(this->width());
-    Height = sqrt(this->height());
-    field_Width = 0.8 * sqrt(this->width());
-    field_Height = Height;
-
-    Wb1 = 0.85 * this->width();
-    Hb1 = 0.4 * this->height();
-    Wb2 = Wb1 + 0.1 * this->width();
-    Hb2 = 0.6 * this->height();
-}
-
 void model::updateSpeed()
 {
     updateAcceleratio();
     for(int i = 0; i<q.size() ; ++i)
     {
         q[i]->setSpeed(q[i]->getV()->getX() + q[i]->getA()->getX(), q[i]->getV()->getY() + q[i]->getA()->getY());
-
-        if(q[i]->getVx() - 0.05 >= 0) {q[i]->setSpeed(0.01, q[i]->getVy());}
-        if(q[i]->getVy() - 0.05 >= 0) {q[i]->setSpeed(q[i]->getVx(), 0.01);}
     }
 }
 
-void model::timerEvent(QTimerEvent *)
+void model::DrawScene()
 {
-    updateScene();
-    this->repaint();
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
 
-    if(con)
+    for(int i = 0; i < q.size() ; ++i)
     {
-        for(int i = 0; i<q.size() ; ++i)
-        {
-            if(q[i]->getVx() - 0.05 >= 0) {q[i]->setSpeed(0.01, q[i]->getVy());}
-            if(q[i]->getVy() - 0.05 >= 0) {q[i]->setSpeed(q[i]->getVx(), 0.01);}
-        }
-
-        Move();
+        p.setBrush(q[i]->getColor());
+        p.drawEllipse(q[i]->getX() - 15, q[i]->getY() - 15, 30, 30);
     }
+}
+
+void model::DrawEscapeMenu()
+{
+    QFont font = btnPause->font();
+    font.setPointSize(15);
+
+    btnPause->setFont(font);
+    btnPause->setGeometry(0.3 * this->width(), 0.25 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnPause->setText("Pause");
+    setVisibleEnabled(true, btnPause);
+
+    btnContinue->setFont(font);
+    btnContinue->setGeometry(0.3 * this->width(), 0.3 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnContinue->setText("Continue");
+    setVisibleEnabled(true, btnContinue);
+
+    btnAddnew->setFont(font);
+    btnAddnew->setGeometry(0.3 * this->width() + 2, 0.35 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnAddnew->setText("Add new Charge");
+    setVisibleEnabled(true, btnAddnew);
+
+    btnDelete->setFont(font);
+    btnDelete->setGeometry(0.3 * this->width() + 2, 0.4 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnDelete->setText("Delete Charge");
+    setVisibleEnabled(true, btnDelete);
+
+    btnQuit->setFont(font);
+    btnQuit->setGeometry(0.3 * this->width() + 2, 0.45 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnQuit->setText("Quit");
+    setVisibleEnabled(true, btnQuit);
+
+    btnSwap->setFont(font);
+    btnSwap->setGeometry(0.3 * this->width() + 2, 0.5 * this->height(), 0.4 * this->width() - 2, 0.05 * this->height());
+    btnSwap->setText("Change F");
+    setVisibleEnabled(true, btnSwap);
+
+    lbl->setText("Menu");
+    lbl->setVisible(true);
+    lbl->setEnabled(true);
+
+    QPalette pal;
+    pal.setColor(QPalette::Text, Qt::black);
+    lbl->setPalette(pal);
+
+    lbl->setGeometry(0.45 * this->width(), 0.2 * this->height(), 0.2 * this->width(), 0.05 * this->height());
+    lbl->setStyleSheet("color: rgb(0, 0, 0)");
+
+    QFont f = lbl->font();
+    f.setPointSize(20);
+    lbl->setFont(f);
+}
+
+void model::setVisibleEnabled(bool c, QPushButton *q)
+{
+    q->setVisible(c);
+    q->setEnabled(c);
 }
 
 void model::paintEvent(QPaintEvent *)
@@ -475,7 +457,37 @@ void model::paintEvent(QPaintEvent *)
     else
     {
         DrawScene();
-        DrawLines();
-        DrawRightPart();
+        if(!con)
+        {
+            DrawEscapeMenu();
+        }
+    }
+}
+
+void model::keyPressEvent(QKeyEvent *e)
+{
+    switch(e->key())
+    {
+    case Qt::Key_Escape:
+    {
+        if(con) {Pause();}
+        else {Continue();}
+        break;
+    }
+    case Qt::Key_Plus:
+    {
+        AddNewQ();
+        break;
+    }
+    case Qt::Key_Minus:
+    {
+        DeleteCharge();
+        break;
+    }
+    case Qt::Key_F:
+    {
+        swapF();
+        break;
+    }
     }
 }
