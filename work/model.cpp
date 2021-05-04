@@ -23,10 +23,6 @@ model::model()
     setMenu();
     setEscapeMenu();
 
-    QPalette pal;
-    pal.setColor(QPalette::Background, Qt::white);
-    setPalette(pal);
-
     f = 0;
 }
 
@@ -100,11 +96,12 @@ void model::AddNewQ()
     if(q.size() < 11)
     {
         Charge *newq = new Charge();
-        newq->setSpeed((rand() % 20) * 0.01, (rand() % 20) * 0.01);
+        newq->getV()->setX(double(rand() % 26) / 20);
+        newq->getV()->setY(double(rand() % 26) / 20);
         newq->setX((rand() % (this->width() - 15)) + 15); newq->setY((rand() % (this->height() - 15)) + 15);
-        newq->setM((rand() % 20 + 1) / pow(10, 5));
+        newq->setM((rand() % 20 + 1) / pow(10, 17));
         newq->setSign("-");
-        newq->setQ((rand() % 10) / pow(10, 18));
+        newq->setQ((rand() % 10) / pow(10, 12));
 
         newq->setColor(rand() % 255, rand() % 255, rand() % 255);
         q.push_back(newq);
@@ -136,9 +133,6 @@ void model::DrawMenu()
     apply->setGeometry(this->width() * 0.4, this->height() * 0.45, this->width() * 0.2, this->height() * 0.1);
 
     number->setGeometry(this->width() * 0.4, this->height() * 0.4, this->width() * 0.2, this->height() * 0.05);
-    QPalette p;
-    p.setColor(QPalette::Background, Qt::white);
-    number->setPalette(p);
 }
 
 void model::Start()
