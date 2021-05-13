@@ -400,22 +400,22 @@ void model::DrawEscapeMenu()
     setVisibleEnabled(true, btnContinue);
 
     btnAddnew->setFont(font);
-    btnAddnew->setGeometry(0.3 * this->width() + 2, 0.35 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnAddnew->setGeometry(0.3 * this->width(), 0.35 * this->height(), 0.4 * this->width(), 0.05 * this->height());
     btnAddnew->setText("Add new Charge");
     setVisibleEnabled(true, btnAddnew);
 
     btnDelete->setFont(font);
-    btnDelete->setGeometry(0.3 * this->width() + 2, 0.4 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnDelete->setGeometry(0.3 * this->width(), 0.4 * this->height(), 0.4 * this->width(), 0.05 * this->height());
     btnDelete->setText("Delete Charge");
     setVisibleEnabled(true, btnDelete);
 
     btnQuit->setFont(font);
-    btnQuit->setGeometry(0.3 * this->width() + 2, 0.45 * this->height(), 0.4 * this->width(), 0.05 * this->height());
+    btnQuit->setGeometry(0.3 * this->width(), 0.45 * this->height(), 0.4 * this->width(), 0.05 * this->height());
     btnQuit->setText("Quit");
     setVisibleEnabled(true, btnQuit);
 
     btnSwap->setFont(font);
-    btnSwap->setGeometry(0.3 * this->width() + 2, 0.5 * this->height(), 0.4 * this->width() - 2, 0.05 * this->height());
+    btnSwap->setGeometry(0.3 * this->width(), 0.5 * this->height(), 0.4 * this->width() - 2, 0.05 * this->height());
     btnSwap->setText("Change F");
     setVisibleEnabled(true, btnSwap);
 
