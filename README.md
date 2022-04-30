@@ -1,2 +1,2 @@
 # Qt-projects
-This is a collection of graphics projects using the Qt libraries.
+This is collection of graphics projects using Qt libraries.
