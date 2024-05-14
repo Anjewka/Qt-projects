@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.23)
+project(task4)
+#set(CMAKE_CXX_STANDARD 20)
+
+find_package(GLEW REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+add_executable(task4 main.cpp stb_image.h)
+target_link_libraries(task4 ${OPENGL_LIBRARIES} GLEW::GLEW glfw)

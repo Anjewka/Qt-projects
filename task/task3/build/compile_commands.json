@@ -1,0 +1,7 @@
+[
+{
+  "directory": "C:/Users/thean/Desktop/ПМИ/task/task3/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL -O3 -DNDEBUG -o CMakeFiles\\task3.dir\\main.cpp.obj -c C:\\Users\\thean\\Desktop\\ПМИ\\task\\task3\\main.cpp",
+  "file": "C:\\Users\\thean\\Desktop\\ПМИ\\task\\task3\\main.cpp"
+}
+]

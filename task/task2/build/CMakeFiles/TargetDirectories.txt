@@ -1,0 +1,3 @@
+/home/andrey/Рабочий стол/task/task2/build/CMakeFiles/task2.dir
+/home/andrey/Рабочий стол/task/task2/build/CMakeFiles/edit_cache.dir
+/home/andrey/Рабочий стол/task/task2/build/CMakeFiles/rebuild_cache.dir

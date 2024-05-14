@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/andrey/Рабочий стол/task/task2/build",
+  "command": "/usr/bin/clang++   -g -o CMakeFiles/task2.dir/main.cpp.o -c \"/home/andrey/Рабочий стол/task/task2/main.cpp\"",
+  "file": "/home/andrey/Рабочий стол/task/task2/main.cpp",
+  "output": "CMakeFiles/task2.dir/main.cpp.o"
+}
+]
